@@ -71,7 +71,7 @@ def administrationPage():
 	action = request.args.get("action")
 	users = User.query.all()
 
-	if action is "adduser": # Add a user
+	if action == "adduser": # Add a user
 		username = request.form.get("username")
 		password = request.form.get("password")
 		isAdmin = request.form.get("isAdmin") is not None
@@ -84,17 +84,21 @@ def administrationPage():
 				app.logger.info(f"Adding username={username} and admin={isAdmin}")
 				db.session.add(User(name=username, passwordHash=passwordHash, isAdmin=isAdmin))
 				db.session.commit()
+
+				users = User.query.all()
 				return render_template("adminPage.html", users=users, msgType="success", msg="Successfully added user") # Successfully added user
 		else: # Credentials are not valid or were None, return error message
 			return render_template("adminPage.html", users=users, msgType="error", msg="Username or password are not valid") 
 	
-	elif action is "deluser": # Delete a user
+	elif action == "deluser": # Delete a user
 		username = request.args.get("username")
 		if username is not None:
 			userQuery = User.query.filter_by(name=username).first()
 			if userQuery is not None:
 				db.session.delete(userQuery)
 				db.session.commit()
+
+				users = User.query.all()
 				return render_template("adminPage.html", users=users, msgType="success", msg="Successfully deleted user") # Successfully deleted user
 		return render_template("adminPage.html", users=users, msgType="error", msg="Can not delete user because user does not exist") # Error deleting user
 	
