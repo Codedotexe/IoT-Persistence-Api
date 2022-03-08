@@ -8,14 +8,44 @@ header {
 	margin-bottom: 5%;
 }
 
+.centered-vert {
+	margin: auto;
+}
+
 .content>* {
 	margin-bottom: 5%;
 }
 
+.success {
+    background: rgb(28, 184, 65);
+	color: white;
+}
+
+.error {
+	background: rgb(202, 60, 60);
+	color: white;
+}
+
+.warning {
+	background: rgb(223, 117, 20);
+	color: white;
+}
+
+.notification-bar {
+	margin-left: 1em;
+	margin-right: 1em;
+	border-radius: 1em;
+	padding: 0.5em;
+}
+
+.text-center {
+	text-align: center;
+}
+
 table {
 	font-size: 1.2em;
-	margin: auto;
 }
+
 
 form {
 	border: 1px solid;
@@ -29,16 +59,4 @@ form legend {
 
 input[type="checkbox"] {
 	margin: 10px;
-}
-
-.success {
-    background: rgb(28, 184, 65);
-}
-
-.error {
-	background: rgb(202, 60, 60);
-}
-
-.warning {
-	background: rgb(223, 117, 20);
 }
