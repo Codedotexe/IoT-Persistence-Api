@@ -30,3 +30,15 @@ form legend {
 input[type="checkbox"] {
 	margin: 10px;
 }
+
+.success {
+    background: rgb(28, 184, 65);
+}
+
+.error {
+	background: rgb(202, 60, 60);
+}
+
+.warning {
+	background: rgb(223, 117, 20);
+}

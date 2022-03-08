@@ -65,54 +65,53 @@ def getUserRoles(user):
 		return ["user"]
 
 # Admin overview html page
-@app.route("/admin")
+@app.route("/admin", methods=["GET", "POST"])
 @auth.login_required(role=["admin"])
 def administrationPage():
-	#action = request.args.get("action")
-
+	action = request.args.get("action")
 	users = User.query.all()
-	return render_template("adminPage.html", users=users)
+
+	if action is "adduser": # Add a user
+		username = request.form.get("username")
+		password = request.form.get("password")
+		isAdmin = request.form.get("isAdmin") is not None
+
+		if validCredentials(username, password): # Are given credentials given (e.g. password min length)
+			if User.query.filter_by(name=username).first() is not None: # Check if user with that name already exists
+				return render_template("adminPage.html", users=users, msgType="error", msg="A user with that name already exists") # Error creating user
+			else: # Proceed to add user to database
+				passwordHash = generate_password_hash(password)
+				app.logger.info(f"Adding username={username} and admin={isAdmin}")
+				db.session.add(User(name=username, passwordHash=passwordHash, isAdmin=isAdmin))
+				db.session.commit()
+				return render_template("adminPage.html", users=users, msgType="success", msg="Successfully added user") # Successfully added user
+		else: # Credentials are not valid or were None, return error message
+			return render_template("adminPage.html", users=users, msgType="error", msg="Username or password are not valid") 
+	
+	elif action is "deluser": # Delete a user
+		username = request.args.get("username")
+		if username is not None:
+			userQuery = User.query.filter_by(name=username).first()
+			if userQuery is not None:
+				db.session.delete(userQuery)
+				db.session.commit()
+				return render_template("adminPage.html", users=users, msgType="success", msg="Successfully deleted user") # Successfully deleted user
+		return render_template("adminPage.html", users=users, msgType="error", msg="Can not delete user because user does not exist") # Error deleting user
+	
+	else: # Unknown action or no action given
+		return render_template("adminPage.html", users=users)
 
 # Admin html page which shows details about given user
 @app.route("/admin/user")
 @auth.login_required(role=["admin"])
 def administrationUserDetails():
-	username = request.args.get("name")
-	return render_template("adminPageUserDetails.html")
-
-# Admin endpoint to add a user
-@app.route("/admin/adduser", methods=["POST"])
-@auth.login_required(role=["admin"])
-def administrationAddUser():
-	username = request.form.get("username")
-	password = request.form.get("password")
-	isAdmin = request.form.get("isAdmin") is not None
-
-
-	if validCredentials(username, password):
-		if User.query.filter_by(name=username).first() is not None:
-			return abort(400, "A user with that name already exists")
-
-		passwordHash = generate_password_hash(password)
-		app.logger.info(f"Adding username={username} and admin={isAdmin}")
-		db.session.add(User(name=username, passwordHash=passwordHash, isAdmin=isAdmin))
-		db.session.commit()
-		return redirect("/admin")
-	else:
-		abort(400, "Username or password are not valid")
-
-# Admin endpoint to delete a user
-@app.route("/admin/deluser")
-@auth.login_required(role=["admin"])
-def administrationDeleteUser():
 	username = request.args.get("username")
-	if username is not None:
+	if username != None:
 		userQuery = User.query.filter_by(name=username).first()
-		if userQuery is not None:
-			db.session.delete(userQuery)
-			db.session.commit()
-			return redirect("/admin")
-	abort(400, "Can not delete user because user does not exist")
+		if userQuery != None:
+			stateQueries = State.query.filter_by(user=username).all()
+			return render_template("adminPageUserDetails.html", username=username, states=stateQueries)
+	abort(404, "User not found")
 
 # Api endpoint to set a state
 @app.route("/set")
