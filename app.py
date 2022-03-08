@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, make_response, abort, Response
+from flask import Flask, request, render_template, make_response, abort, Response, redirect
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_sqlalchemy import SQLAlchemy
@@ -68,25 +68,36 @@ def getUserRoles(user):
 @app.route("/admin")
 @auth.login_required(role=["admin"])
 def administrationPage():
-	return render_template("adminPage.html")
+	#action = request.args.get("action")
+
+	users = User.query.all()
+	return render_template("adminPage.html", users=users)
 
 # Admin html page which shows details about given user
 @app.route("/admin/user")
 @auth.login_required(role=["admin"])
 def administrationUserDetails():
+	username = request.args.get("name")
 	return render_template("adminPageUserDetails.html")
 
 # Admin endpoint to add a user
 @app.route("/admin/adduser", methods=["POST"])
 @auth.login_required(role=["admin"])
 def administrationAddUser():
-	username = requets.form["username"]
-	password = request.form["password"]
+	username = request.form.get("username")
+	password = request.form.get("password")
+	isAdmin = request.form.get("isAdmin") is not None
+
+
 	if validCredentials(username, password):
+		if User.query.filter_by(name=username).first() is not None:
+			return abort(400, "A user with that name already exists")
+
 		passwordHash = generate_password_hash(password)
-		db.session.add(User(name=username, passwordHash=passwordHash, isAdmin=0))
+		app.logger.info(f"Adding username={username} and admin={isAdmin}")
+		db.session.add(User(name=username, passwordHash=passwordHash, isAdmin=isAdmin))
 		db.session.commit()
-		return "Successfully added user"
+		return redirect("/admin")
 	else:
 		abort(400, "Username or password are not valid")
 
@@ -94,13 +105,14 @@ def administrationAddUser():
 @app.route("/admin/deluser")
 @auth.login_required(role=["admin"])
 def administrationDeleteUser():
-	db.remove(User.query.filter_by(name=username).first())
-	db.session.commit()
-
-	if cursor.rowcount > 0:
-		return "Successfully deleted user"
-	else:
-		abort(400, "Can not delete user because user does not exist")
+	username = request.args.get("username")
+	if username is not None:
+		userQuery = User.query.filter_by(name=username).first()
+		if userQuery is not None:
+			db.session.delete(userQuery)
+			db.session.commit()
+			return redirect("/admin")
+	abort(400, "Can not delete user because user does not exist")
 
 # Api endpoint to set a state
 @app.route("/set")

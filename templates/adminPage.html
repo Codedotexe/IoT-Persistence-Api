@@ -3,10 +3,53 @@
 	<head>
 		<meta charset="utf-8"/>
 		<title>Administration</title>
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"/>
 		<link rel="stylesheet" href="https://unpkg.com/purecss@2.0.6/build/pure-min.css" integrity="sha384-Uu6IeWbM+gzNVXJcM9XV3SohHtmWE+3VGi496jvgX1jyvDTXfdK+rfZc8C1Aehk5" crossorigin="anonymous"/>
 	</head>
 	<body>
-		<h1>Administration</h1>
+		<header class="pure-g">
+			<h1 class="pure-u-1">Administration</h1>
+		</header>
+
+		<div class="content">
+			<table class="pure-table pure-table-horizontal">
+				<thead>
+					<td>Account name</td>
+					<td>is Admin</td>
+					<td></td>
+				</thead>
+				<tbody>
+					{% for user in users %}
+						<tr>
+							<td>
+								<a href="/admin/user?username={{user.name | urlencode}}">{{ user.name }}</a>
+							</td>
+							<td>{{ "Yes" if user.isAdmin else "No" }}</td>
+							<td>
+								<a href="/admin/deluser?username={{user.name | urlencode}}">
+									<button>Delete User</button>
+								</a>
+							</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+			<form class="pure-form pure-form-stacked" action="/admin/adduser" method="post">
+				<fieldset>
+					<legend>
+						<h3>Add a new user</h3>
+					</legend>
+					<div class="pure-g">
+						<input class="pure-u-1-2 pure-u-sm-1" type="text" placeholder="name" id="nameInput" name="username" required/>
+						<input class="pure-u-1-2 pure-u-sm-1" type="password" placeholder="password" id="passwordInput" name="password" minlength="8" required/>
+						<label class="pure-u-1-1 pure-checkbox" for="nameInput">
+							<input type="checkbox" id="isAdminInput" name="isAdmin"/>Admin
+						</label>
+						<button class="pure-u-1-1 pure-button pure-button-primary" type="submit">Add new User</button>
+					</div>
+				</fieldset>
+			</form>
+		</div>
 	</body>
 </html> 
  
