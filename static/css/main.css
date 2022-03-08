@@ -1,0 +1,32 @@
+body {
+	font-family: sans-serif;
+}
+
+header {
+	text-align: center;
+	border-bottom: 2px solid;
+	margin-bottom: 5%;
+}
+
+.content>* {
+	margin-bottom: 5%;
+}
+
+table {
+	font-size: 1.2em;
+	margin: auto;
+}
+
+form {
+	border: 1px solid;
+	padding: 1%;
+}
+
+form legend {
+	text-align: center;
+	text-decoration: underline;
+}
+
+input[type="checkbox"] {
+	margin: 10px;
+}
