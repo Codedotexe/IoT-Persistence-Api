@@ -2,11 +2,10 @@ from flask import Flask, request, render_template, make_response, abort, Respons
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_sqlalchemy import SQLAlchemy
+import getpass
 import json
 import os
 
-# Init app
-baseDir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
 
 # Load default config and override config from an environment variable
@@ -35,6 +34,20 @@ class State(db.Model):
 
 	def __repr__(self):
 		return f"State {self.key}={self.value}"
+
+def initDB(adminPassword):
+	# Create database and admin user
+	db.create_all()
+	passwordHash = generate_password_hash(adminPassword)
+	admin = User(name="admin", isAdmin=1, passwordHash=passwordHash)
+	db.session.add(admin)
+	db.session.commit()
+
+@app.cli.command("initdb")
+def initDBCommand():
+	adminPassword = getpass.getpass(prompt="Please choose an admin password: ")
+	initDB(adminPassword)
+	print("Initialized the databse")
 
 # Check if the given username and password meet standards
 def validCredentials(username, password):
