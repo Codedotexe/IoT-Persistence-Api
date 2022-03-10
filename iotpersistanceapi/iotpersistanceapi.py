@@ -8,9 +8,14 @@ import os
 # Init app
 baseDir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
-app.config["DEBUG"] = True
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(baseDir, "database.db")
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+# Load default config and override config from an environment variable
+app.config.update({
+	"SQLALCHEMY_DATABASE_URI" = "sqlite:///" + os.path.join(app.root_path, "database.db")
+	"SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+})
+app.config.from_envvar('FLASKR_SETTINGS', silent=True)
+
 db = SQLAlchemy(app)
 auth = HTTPBasicAuth()
 
