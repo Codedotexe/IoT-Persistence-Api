@@ -6,14 +6,16 @@ import getpass
 import json
 import os
 
-app = Flask(__name__)
+app = Flask(__name__, instance_relative_config=True)
 
 # Load default config and override config from an environment variable
+os.makedirs(app.instance_path, exist_ok=True)
 app.config.update({
-	"SQLALCHEMY_DATABASE_URI" = "sqlite:///" + os.path.join(app.root_path, "database.db")
-	"SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+	"SQLALCHEMY_DATABASE_URI": "sqlite:///" + os.path.join(app.instance_path, "database.db"),
+	"SQLALCHEMY_TRACK_MODIFICATIONS": False
 })
-app.config.from_envvar('FLASKR_SETTINGS', silent=True)
+app.config.from_file("config.json", load=json.load)
+app.config.from_envvar("IOTPERSISTANCEAPI_SETTINGS", silent=True)
 
 db = SQLAlchemy(app)
 auth = HTTPBasicAuth()
@@ -43,7 +45,7 @@ def initDB(adminPassword):
 	db.session.add(admin)
 	db.session.commit()
 
-@app.cli.command("initdb")
+@app.cli.command("init-db")
 def initDBCommand():
 	adminPassword = getpass.getpass(prompt="Please choose an admin password: ")
 	initDB(adminPassword)
@@ -175,7 +177,7 @@ def removeState():
 		abort(400, "Parameter missing")
 
 	if State.query.filter_by(key=key, user=auth.current_user().name).first() is None:
-		abort(400, "Key not found")
+		abort(404, "Key not found")
 	else:
 		db.remove(State.query.filter_by(key=key, user=auth.current_user().name).first())
 		db.session.commit()

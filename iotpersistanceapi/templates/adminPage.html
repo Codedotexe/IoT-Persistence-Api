@@ -30,11 +30,11 @@
 			{% for user in users %}
 			<tr>
 				<td>
-					<a href="/admin/user?username={{user.name | urlencode}}">{{ user.name }}</a>
+					<a href="admin/user?username={{user.name | urlencode}}">{{ user.name }}</a>
 				</td>
 				<td>{{ "Yes" if user.isAdmin else "No" }}</td>
 				<td>
-					<a href="/admin?action=deluser&username={{user.name | urlencode}}">
+					<a href="admin?action=deluser&username={{user.name | urlencode}}">
 						<button clas="pure-button warning">Delete User</button>
 					</a>
 				</td>
@@ -43,7 +43,7 @@
 		</tbody>
 	</table>
 </div>
-<form class="pure-form pure-form-stacked" action="/admin?action=adduser" method="post">
+<form class="pure-form pure-form-stacked" action="admin?action=adduser" method="post">
 	<fieldset>
 		<legend>
 			<h3>Add a new user</h3>
