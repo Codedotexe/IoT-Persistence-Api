@@ -1,2 +1,2 @@
-graft iotpersistanceapi/templates
-graft iotpersistanceapi/static
+recursive-include iotpersistanceapi/templates *
+recursive-include iotpersistanceapi/static *
