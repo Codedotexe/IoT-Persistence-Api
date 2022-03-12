@@ -1,1 +1,0 @@
-from .iotpersistanceapi import app

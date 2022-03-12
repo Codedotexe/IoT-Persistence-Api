@@ -1,2 +1,2 @@
-recursive-include iotpersistanceapi/templates *
-recursive-include iotpersistanceapi/static *
+recursive-include iotpersistenceapi/templates *
+recursive-include iotpersistenceapi/static *
