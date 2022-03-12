@@ -6,7 +6,7 @@ import getpass
 import json
 import os
 
-app = Flask(__name__, instance_relative_config=True)
+app = Flask(__name__)
 
 # Load default config and override config from an environment variable
 os.makedirs(app.instance_path, exist_ok=True)
@@ -14,7 +14,8 @@ app.config.update({
 	"SQLALCHEMY_DATABASE_URI": "sqlite:///" + os.path.join(app.instance_path, "database.db"),
 	"SQLALCHEMY_TRACK_MODIFICATIONS": False
 })
-app.config.from_file("config.json", load=json.load)
+if os.path.isfile(os.path.join(app.instance_path, "config.json")):
+	app.config.from_file(os.path.join(app.instance_path, "config.json"))
 app.config.from_envvar("IOTPERSISTENCEAPI_SETTINGS", silent=True)
 
 db = SQLAlchemy(app)
